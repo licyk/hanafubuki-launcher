@@ -1,0 +1,40 @@
+# cargo-about's configuration for THIRD-PARTY-LICENSES.txt, which the release workflow's
+# `licenses` job generates for the binary archives
+# (`cargo about generate --locked --fail -o THIRD-PARTY-LICENSES.txt about.hbs`).
+#
+# Every license in the binary's dependency graph, on any of the release targets below, must be
+# accepted here or the generation fails: that is what the flag is for. The graph an iced window
+# pulls in is larger than the launcher's own crates suggest, since it brings the windowing, text
+# and image stacks with it.
+accepted = [
+    "Apache-2.0",
+    "MIT",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "Zlib",
+    "CC0-1.0",
+    "MPL-2.0",
+    "GPL-3.0-only",
+    # arboard's Windows clipboard (clipboard-win, error-code).
+    "BSL-1.0",
+    # Some of the graphics and text stacks are dual licensed with this.
+    "Apache-2.0 WITH LLVM-exception",
+    # The font and image crates of the UI stack.
+    "OFL-1.1",
+    "Ubuntu-font-1.0",
+    "Unlicense",
+    "CC-BY-4.0",
+    # libbz2-rs-sys, the pure-Rust bzip2 under `bzip2`, which the Python installer unpacks with.
+    "bzip2-1.0.6",
+]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+    "x86_64-pc-windows-msvc",
+]
+ignore-dev-dependencies = true

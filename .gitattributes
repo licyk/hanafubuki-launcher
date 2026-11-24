@@ -1,0 +1,9 @@
+# One line ending everywhere. The repository is written on Windows too, where an editor or a
+# script defaults to CRLF, and a single file flipped that way rewrites every line in a diff and
+# hides the real change. Normalise on commit and check out unchanged in the working tree; the
+# ported modules under src/internal/ came from a CRLF checkout and are normalised the same way.
+* text=auto eol=lf
+
+# Binary assets keep their bytes.
+*.ico binary
+*.png binary

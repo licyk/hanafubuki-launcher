@@ -1,0 +1,121 @@
+[package]
+# The package is `hanafubuki`; the binary it installs keeps its own name. The self-update
+# compares against the executable's file name (`installed_file_name` in `self_update`) and the
+# release archives carry a `hanafubuki-launcher` entry, so renaming the binary would break it.
+name = "hanafubuki"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.99.1"
+license = "GPL-3.0-only"
+description = "Prepares, updates, and starts Hanafubuki"
+readme = "README.md"
+repository = "https://github.com/licyk/Hanafubuki"
+homepage = "https://github.com/licyk/Hanafubuki"
+keywords = ["launcher", "gui", "desktop", "hanafubuki"]
+# crates.io's own slugs, which are not always lowercase: the GUI one is spelled in upper case.
+categories = ["GUI", "Development tools"]
+exclude = [
+    "/.github",
+    "/about.toml",
+    "/about.hbs",
+    "/THIRD-PARTY-LICENSES.txt",
+    "/clippy.log",
+]
+
+# Named explicitly because the package name no longer implies it: without this, cargo would
+# build a binary called `hanafubuki`, which is not the file the updater looks for.
+[[bin]]
+name = "hanafubuki-launcher"
+path = "src/main.rs"
+
+[features]
+default = []
+# `schema` and `test-support` are the feature names the ported modules were written against
+# (a JSON-Schema export and test-only constructors). The launcher builds neither: declaring
+# them keeps the ported `#[cfg(feature = ...)]` gates compiling as the off branch, so the code
+# stays identical to the repository it came from.
+schema = []
+test-support = []
+
+[dependencies]
+# The UI. `iced` is published, so this crate can be packaged and published too: crates.io
+# rejects a package whose dependency has no version, which a git dependency cannot supply.
+iced = { version = "0.14", default-features = false, features = [
+  "tiny-skia",
+  "thread-pool",
+  "x11",
+  "wayland",
+  "image",
+] }
+
+base64 = "0.23"
+bzip2 = "0.6"
+flate2 = "1"
+futures-util = "0.3"
+getrandom = "0.4"
+hex = "0.4"
+log = "0.4"
+minisign-verify = "0.3.0"
+parking_lot = "0.12"
+percent-encoding = "2"
+portable-pty = "0.9"
+regex = "1"
+reqwest = { version = "0.13", default-features = false, features = ["blocking", "rustls", "socks"] }
+semver = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.11"
+sys-locale = "0.3.2"
+tar = "0.4"
+tempfile = "3"
+toml = "1"
+url = "2"
+xz2 = "0.1"
+zip = { version = "9.0.3", default-features = false, features = ["deflate"] }
+
+[target.'cfg(windows)'.dependencies]
+anyhow = "1"
+filedescriptor = "0.8.3"
+lazy_static = "1"
+shared_library = "0.1.9"
+winapi = { version = "0.3.9", features = [
+  "handleapi",
+  "minwinbase",
+  "minwindef",
+  "ntdef",
+  "ntstatus",
+  "processthreadsapi",
+  "synchapi",
+  "winbase",
+  "wincon",
+  "winerror",
+  "winnt",
+] }
+windows-sys = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_Globalization",
+  "Win32_Security",
+  "Win32_Storage_FileSystem",
+  "Win32_System_Diagnostics_ToolHelp",
+  "Win32_System_JobObjects",
+  "Win32_System_Registry",
+  "Win32_System_Threading",
+  "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging",
+] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies]
+rustix = { version = "1.1", features = ["fs"] }
+
+[build-dependencies]
+embed-resource = "3.0.11"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true

@@ -1,0 +1,94 @@
+# The launcher's checks on every platform it ships to.
+#
+# A change only to files no check reads (Markdown, licence files, the workflow files) runs
+# nothing here. Tags never start this workflow: a v* tag starts Release, which reuses this
+# workflow's run of the tagged commit, or calls this file as its checks when there is none.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - "NOTICE"
+      - ".github/workflows/**"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - "NOTICE"
+      - ".github/workflows/**"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+# A newer push cancels an older run of the same ref. Inside a calling workflow, github.workflow is
+# the caller's name, so its call never shares a group with (or cancels) a CI run.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: Rust (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    # A cold build compiles iced and its renderer, about 10 minutes on a fresh cache: a hang fails instead
+    # of holding the runner for the full six hours.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      # keep in step with rust-toolchain.toml
+      - uses: dtolnay/rust-toolchain@1.99.1
+        with:
+          components: rustfmt, clippy
+      # iced's x11 and wayland backends link libxkbcommon and libwayland-client on Linux, and the
+      # release profile is what ships, so its LTO link takes the same libraries.
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libxkbcommon-dev libwayland-dev
+      - uses: Swatinem/rust-cache@v2.9.3
+      - run: cargo fmt --all --check
+      - run: cargo check --all-targets
+      # `src/internal/` is a snapshot of other crates and keeps the 27 style warnings the
+      # repository it came from also reports, so the compiler's warnings are not denied crate-wide:
+      # doing that would force edits into the copy. What is enforced is that the launcher's own
+      # modules stay clean, and that the copy's warnings do not grow.
+      - name: clippy
+        shell: bash
+        run: |
+          cargo clippy --all-targets 2>&1 | tee clippy.log
+          if grep -qE ": error" clippy.log; then
+            echo "::error::clippy reported errors"
+            exit 1
+          fi
+          # The launcher's own window modules (src/ui, src/workflow) must be clean. Everything else was
+          # ported wholesale, including the launcher's own former domains, and keeps the style
+          # warnings the code it came from reports.
+          # `[[:space:]]` rather than `\s`, and a character class rather than an escaped slash:
+          # this runs under bash on Linux (forward slashes) and is read on Windows too, and the
+          # quoting keeps a backslash out of the pattern.
+          own=$(grep -E "^[[:space:]]*--> src[/\\\\](ui|workflow)[/\\\\]" clippy.log || true)
+          if [ -n "$own" ]; then
+            echo "$own"
+            echo "::error::clippy reported a warning in a module written for this crate"
+            exit 1
+          fi
+          # The ported code's warnings are a fixed set. Each warning names its file on a `-->` line,
+          # which the run's `generated N warnings` summaries do not, so this counts warnings.
+          allowed=27
+          found=$(grep -cE "^[[:space:]]*--> src[/\\\\]" clippy.log || true)
+          echo "warnings across the ported code: $found (allowed: $allowed)"
+          if [ "$found" -gt "$allowed" ]; then
+            echo "::error::the ported code grew warnings ($found > $allowed)"
+            exit 1
+          fi
+      - run: cargo test --no-fail-fast
+      # The released profile is what ships: building it here catches an LTO or link-time
+      # difference a debug build hides.
+      - run: cargo build --release

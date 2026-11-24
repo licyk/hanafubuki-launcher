@@ -1,0 +1,7 @@
+/target
+
+# Headless renders the README's commands write next to the sources.
+/*.png
+
+# The clippy step's log, written by CI and by a local run of that step.
+/clippy.log

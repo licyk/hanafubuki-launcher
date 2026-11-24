@@ -1,0 +1,27 @@
+Third-party licenses of hanafubuki, the hanafubuki-launcher binary
+==================================================================
+
+The hanafubuki-launcher binary is built from the Rust crates below, each under
+the license listed with it. Their source code, including that of the crates
+under the Mozilla Public License 2.0, is published on crates.io
+(https://crates.io/crates/<name>/<version>). The launcher's own crate is
+hanafubuki, under GPL-3.0-only (see LICENSE).
+
+The window is drawn with iced (https://github.com/iced-rs/iced, MIT), which
+brings the text-shaping, windowing and image stacks listed here.
+
+Overview
+--------
+{{#each overview}}
+{{{name}}} ({{id}}): {{count}}
+{{/each}}
+{{#each licenses}}
+
+--------------------------------------------------------------------------------
+{{{name}}} ({{id}}), used by:
+{{#each used_by}}
+- {{crate.name}} {{crate.version}}{{#if crate.repository}} ({{{crate.repository}}}){{/if}}
+{{/each}}
+
+{{{text}}}
+{{/each}}

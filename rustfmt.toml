@@ -1,0 +1,5 @@
+# The crate is edition 2021, as the workspace crates it was ported from are, so their `if let`
+# and tail-expression temporary scopes are unchanged. The sources those crates are formatted to
+# are 2024-style (the upstream workspace is edition 2024), so keeps their formatting as-is
+# instead of re-wrapping every `use` in the port.
+style_edition = "2024"
