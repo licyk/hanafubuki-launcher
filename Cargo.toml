@@ -3,7 +3,7 @@
 # compares against the executable's file name (`installed_file_name` in `self_update`) and the
 # release archives carry a `hanafubuki-launcher` entry, so renaming the binary would break it.
 name = "hanafubuki"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.99.1"
 license = "GPL-3.0-only"
@@ -12,8 +12,10 @@ readme = "README.md"
 repository = "https://github.com/licyk/Hanafubuki"
 homepage = "https://github.com/licyk/Hanafubuki"
 keywords = ["launcher", "gui", "desktop", "hanafubuki"]
-# crates.io's own slugs, which are not always lowercase: the GUI one is spelled in upper case.
-categories = ["GUI", "Development tools"]
+# crates.io's category *slugs* from https://crates.io/category_slugs, never their display names:
+# `GUI` and `Development tools` are the names shown on the site, and publishing them is rejected
+# with "The following category slugs are not currently supported on crates.io".
+categories = ["gui", "development-tools"]
 exclude = [
     "/.github",
     "/about.toml",

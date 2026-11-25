@@ -13,10 +13,10 @@
 ```sh
 # 该端点会 302 跳到 static.crates.io，并把文件命名为 download，
 # 所以用 -L 跟随重定向、用 -o 指定输出名。
-curl -sSL -o hanafubuki-0.1.0.crate \
-  https://crates.io/api/v1/crates/hanafubuki/0.1.0/download
-tar xzf hanafubuki-0.1.0.crate
-cd hanafubuki-0.1.0
+curl -sSL -o hanafubuki-0.1.1.crate \
+  https://crates.io/api/v1/crates/hanafubuki/0.1.1/download
+tar xzf hanafubuki-0.1.1.crate
+cd hanafubuki-0.1.1
 ```
 
 也可以把本 crate 加进一个临时项目的依赖，再在 Cargo 的 registry 源码缓存里读取：
@@ -25,6 +25,6 @@ cd hanafubuki-0.1.0
 cargo new --lib peek && cd peek
 cargo add hanafubuki
 cargo fetch
-# 源码位于 Cargo 主目录下的 registry/src/<索引>/hanafubuki-0.1.0，
+# 源码位于 Cargo 主目录下的 registry/src/<索引>/hanafubuki-0.1.1，
 # 主目录默认是 ~/.cargo（Windows 上常是 %USERPROFILE%\.cargo）
 ```
