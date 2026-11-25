@@ -15,23 +15,12 @@
 
 本 crate 发布在 crates.io 上，只作为源码分发渠道，不用于安装。
 
-下载 crate 包：
-
-```sh
-# 该端点会 302 跳到 static.crates.io，并把文件命名为 download，
-# 所以用 -L 跟随重定向、用 -o 指定输出名。
-curl -sSL -o hanafubuki-0.1.1.crate \
-  https://crates.io/api/v1/crates/hanafubuki/0.1.1/download
-tar xzf hanafubuki-0.1.1.crate
-cd hanafubuki-0.1.1
-```
-
-也可以把本 crate 加进一个临时项目的依赖，再在 Cargo 的 registry 源码缓存里读取：
+读取源码的方式是让 Cargo 把它取下来。把本 crate 加进一个临时项目，再让 Cargo 下载依赖，源码就落在 Cargo 的 registry 缓存里：
 
 ```sh
 cargo new --lib peek && cd peek
 cargo add hanafubuki
 cargo fetch
 # 源码位于 Cargo 主目录下的 registry/src/<索引>/hanafubuki-0.1.1，
-# 主目录默认是 ~/.cargo（Windows 上常是 %USERPROFILE%\.cargo）
+# 主目录由 CARGO_HOME 决定，默认是 ~/.cargo（Windows 上常是 %USERPROFILE%\.cargo）
 ```
